@@ -1,7 +1,11 @@
 [package]
-name = "basic_cli_utils"
+name = "cli_util"
 version = "0.1.0"
 edition = "2021"
+
+[[bin]]
+name = "cli_util"  
+path = "src/main.rs"          
 
 [dependencies]
 clap = { version = "4.5.20", features = ["cargo"] }
