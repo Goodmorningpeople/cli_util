@@ -1,4 +1,7 @@
-use std::{env, fs::{self}};
+use std::{
+    env,
+    fs::{self},
+};
 
 use clap::{command, Arg, Command};
 
@@ -6,28 +9,32 @@ fn main() {
     let match_result = command!()
         .about("Basic ClI utilities\n Basic CLI utilities written in Rust to be more efficient, faster and easily modifiable.")
         .subcommand(
-            Command::new("echo").about("echo [options] [input]>, takes a argument of type <String> and prints the argument to the screen, place double-quotes around the argument to have spaces")
+            Command::new("echo").about("echo [options] [input]>, takes a argument of type <String> and prints the argument to the screen, place double-quotes around the argument to have spaces
+")
                 .arg(
                     Arg::new("string-input")
                         .required(true)
                 )
                        )
         .subcommand(
-            Command::new("cat").about("cat [options] [path-to-file], takes a path to a file and prints the content of the file to the screen, place double-quotes around the argument to have spaces")
+            Command::new("cat").about("cat [options] [path-to-file], takes a path to a file and prints the content of the file to the screen, place double-quotes around the argument to have spaces
+")
                 .arg(
                     Arg::new("file-path-input")
                         .required(true)
                 )
         )
         .subcommand(
-            Command::new("ls").about("ls [options] [path-to-directory], takes an optional path to a directory and prints the content of that directory or the current working directory if not specified")
+            Command::new("ls").about("ls [options] [path-to-directory], takes an optional path to a directory and prints the content of that directory or the current working directory if not specified
+")
         .arg(
             Arg::new("directory-path-input")
         )
         )
         .subcommand(
             Command::new("find").about("find [path-to-directory] [options] [expressions], takes a path to a directory and finds a file(s) in it based on the options:
--name [file-name]: finds a file based on it's name")
+-name [file-name]: finds a file based on it's name
+")
             .arg(
                 Arg::new("directory-path-input")
                     .required(true)
@@ -40,7 +47,8 @@ fn main() {
             )
         )
         .subcommand(
-            Command::new("grep").about("grep [options] [pattern] [expression-name], looks for a pattern in a file and prints if the pattern is in the file or the files in a directory and prints the file(s)")
+            Command::new("grep").about("grep [options] [pattern] [expression-name], looks for a pattern in a file and prints if the pattern is in the file or the files in a directory and prints the file(s)
+")
                 .arg(
                     Arg::new("pattern-input")
                         .required(true)
@@ -51,7 +59,8 @@ fn main() {
                 )
         )
         .subcommand(
-            Command::new("pwd").about("pwd [options], prints the current working directory")
+            Command::new("pwd").about("pwd [options], prints the current working directory
+")
         )
                 .get_matches();
 
@@ -168,7 +177,7 @@ fn main() {
         }
         None => {}
     }
-    
+
     let pwd_args = match_result.subcommand_matches("pwd");
     match pwd_args {
         Some(args) => {
