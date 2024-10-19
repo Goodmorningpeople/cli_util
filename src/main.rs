@@ -1,4 +1,4 @@
-use std::fs::{self};
+use std::{env, fs::{self}};
 
 use clap::{command, Arg, Command};
 
@@ -40,7 +40,7 @@ fn main() {
             )
         )
         .subcommand(
-            Command::new("grep").about("grep [options] [pattern] [expression-name]")
+            Command::new("grep").about("grep [options] [pattern] [expression-name], looks for a pattern in a file and prints if the pattern is in the file or the files in a directory and prints the file(s)")
                 .arg(
                     Arg::new("pattern-input")
                         .required(true)
@@ -49,6 +49,9 @@ fn main() {
                     Arg::new("expression-name-input")
                         .required(true)
                 )
+        )
+        .subcommand(
+            Command::new("pwd").about("pwd [options], prints the current working directory")
         )
                 .get_matches();
 
@@ -162,6 +165,15 @@ fn main() {
                     println!("\n{} file(s) containing pattern", counter)
                 }
             }
+        }
+        None => {}
+    }
+    
+    let pwd_args = match_result.subcommand_matches("pwd");
+    match pwd_args {
+        Some(args) => {
+            let path = env::current_dir().unwrap();
+            println!("{}", path.display());
         }
         None => {}
     }
