@@ -1,5 +1,7 @@
-pub mod echo;
 pub mod cat;
-pub mod ls;
+pub mod cd;
+pub mod echo;
+pub mod find;
 pub mod grep;
+pub mod ls;
 pub mod pwd;

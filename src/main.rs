@@ -1,9 +1,9 @@
 use clap::{command, Arg, Command};
-use cli_util::{cat::match_cat, echo::match_echo, grep::match_grep, ls::match_ls, pwd::match_pwd};
+use cli_util::{cat::match_cat, cd::match_cd, echo::match_echo, find::match_find, grep::match_grep, ls::match_ls, pwd::match_pwd};
 
 fn main() {
     let match_result = command!()
-        .about("Basic ClI utilities\n Basic CLI utilities written in Rust to be more efficient, faster and easily modifiable.")
+        .about("Basic CLI utilities written in Rust to be more efficient, faster and easily modifiable.")
         .subcommand(
             Command::new("echo").about("echo [options] [input]>, takes a argument of type <String> and prints the argument to the screen, place double-quotes around the argument to have spaces
 ")
@@ -78,7 +78,13 @@ fn main() {
 
     let grep_args = match_result.subcommand_matches("grep");
     match_grep(grep_args);
-
+    
+    let find_args = match_result.subcommand_matches("find");
+    match_find(find_args);
+    
     let pwd_args = match_result.subcommand_matches("pwd");
     match_pwd(pwd_args);
+
+    let cd_args = match_result.subcommand_matches("cd");
+    match_cd(cd_args);
 }
