@@ -41,6 +41,7 @@ pub fn match_ls(ls_args: Option<&ArgMatches>) {
                     }
                 }
             }
+            println!("")
         }
         None => {}
     }
