@@ -21,24 +21,13 @@ pub fn match_ls(ls_args: Option<&ArgMatches>) {
                     if name.to_str().map_or(false, |n| n.starts_with('.')) {
                         continue;
                     }
-
-                    if counter % 4 == 0 {
-                        println!(
-                            "{}    ",
-                            path.display()
-                                .to_string()
-                                .strip_prefix("./")
-                                .unwrap_or(&path.display().to_string())
-                        );
-                    } else {
-                        print!(
-                            "{}    ",
-                            path.display()
-                                .to_string()
-                                .strip_prefix("./")
-                                .unwrap_or(&path.display().to_string())
-                        );
-                    }
+                    println!(
+                        "{}    ",
+                        path.display()
+                            .to_string()
+                            .strip_prefix("./")
+                            .unwrap_or(&path.display().to_string())
+                    );
                 }
             }
             println!("")

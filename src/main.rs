@@ -1,7 +1,7 @@
 use clap::{command, Arg, ArgAction, Command};
 use cli_util::{
-    cat::match_cat, echo::match_echo, find::match_find, grep::match_grep,
-    ls::match_ls, pwd::match_pwd,
+    cat::match_cat, echo::match_echo, find::match_find, grep::match_grep, ls::match_ls,
+    pwd::match_pwd,
 };
 
 fn main() {
@@ -9,8 +9,8 @@ fn main() {
         .about("Basic CLI utilities written in Rust to be more efficient, faster and easily modifiable.")
         .subcommand(
             Command::new("echo").about("echo [options] [string]: takes a argument of type <String> and prints the argument to the screen, place double-quotes around the argument to have spaces
--n: do not output the trailing newline, allows you to print on the same line without moving onto the next
--e: enable interpretation of backspace escapes and special characters 
+-n: Do not output the trailing newline, allows you to print on the same line without moving onto the next
+-e: Enable interpretation of backspace escapes and special characters
 ")
                 .arg(
                     Arg::new("string-input")
@@ -20,7 +20,6 @@ fn main() {
                     .short('n')
                     .long("newline")
                     .action(ArgAction::SetTrue)
-                    .conflicts_with("enable-special-option")
                 )
                 .arg(
                     Arg::new("enable-special-option")
@@ -30,11 +29,42 @@ fn main() {
                 )
                        )
         .subcommand(
-            Command::new("cat").about("cat [options] [path-to-file]: takes a path to a file and prints the content of the file to the screen, place double-quotes around the argument to have spaces
+            Command::new("cat").about("cat [options] [path-to-file]: takes a path to a file and prints the content of the file to the screen
+-n: Number all output lines
+-b: Number all non-empty output lines
+-s: Squeeze multiple adjacent blank lines, making the output more compact
+-e: Display a $ at the end of each line
+-t: Show tab characters as ^I
 ")
                 .arg(
                     Arg::new("file-path-input")
                         .required(true)
+                )
+                .arg(
+                    Arg::new("line-number-option")
+                        .short('n')
+                        .action(ArgAction::SetTrue)
+                        .conflicts_with("non-empty-line-number-option")
+                )
+                .arg(
+                     Arg::new("non-empty-line-number-option")
+                         .short('b')
+                         .action(ArgAction::SetTrue)
+                    )
+                .arg(
+                    Arg::new("squeeze-line-option")
+                        .short('s')
+                        .action(ArgAction::SetTrue)
+                )
+                .arg(
+                    Arg::new("eol-special-option")
+                        .short('e')
+                        .action(ArgAction::SetTrue)
+                )
+                .arg(
+                    Arg::new("tab-character-option")
+                        .short('t')
+                        .action(ArgAction::SetTrue)
                 )
         )
         .subcommand(
@@ -45,7 +75,7 @@ fn main() {
         )
         )
         .subcommand(
-            Command::new("find").about("find [path-to-directory] [options] [expressions]: takes a path to a directory and finds a file(s) in it 
+            Command::new("find").about("find [path-to-directory] [options] [expressions]: takes a path to a directory and finds a file(s) in it
 -name [file-name]: finds a file based on it's name
 ")
             .arg(
