@@ -14,7 +14,7 @@ pub fn match_find(find_args: Option<&ArgMatches>) {
                     if let Some(s) = path.unwrap().path().file_name() {
                         let name = String::from(s.to_str().unwrap());
                         if &name == name_option {
-                            print!("{}", name);
+                            println!("{}", name);
                             counter += 1;
                         }
                     }
