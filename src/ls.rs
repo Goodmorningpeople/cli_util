@@ -5,7 +5,6 @@ use clap::ArgMatches;
 pub fn match_ls(ls_args: Option<&ArgMatches>) {
     match ls_args {
         Some(args) => {
-            let mut counter = 0;
             let dir_path = args
                 .get_one::<String>("directory-path-input")
                 .map_or("./".to_string(), |s| s.clone());
@@ -13,7 +12,6 @@ pub fn match_ls(ls_args: Option<&ArgMatches>) {
             let paths = fs::read_dir(&dir_path).expect("Directory path is invalid!");
 
             for entry in paths {
-                counter += 1;
                 let entry = entry.expect("Failed to read entry");
                 let path = entry.path();
 
@@ -25,12 +23,11 @@ pub fn match_ls(ls_args: Option<&ArgMatches>) {
                         "{}    ",
                         path.display()
                             .to_string()
-                            .strip_prefix("./")
+                            .strip_prefix(&dir_path)
                             .unwrap_or(&path.display().to_string())
                     );
                 }
             }
-            println!("")
         }
         None => {}
     }
