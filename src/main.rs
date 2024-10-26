@@ -69,14 +69,44 @@ fn main() {
         )
         .subcommand(
             Command::new("ls").about("ls [options] [path-to-directory]: takes an optional path to a directory and prints the content of that directory or the current working directory if not specified
+-l: Returns a detailed output with file type, permissions, link count, the owner, the group, file size and modification timestamp
+-a: Output includes all files, even hidden files
+-r: Makes file size outputs human-readable
+-R: Recursively outputs directories and their contents (including the files in subdirectories)
+-F: Appends a character to each file name to indicate its type (e.g., '/' for directories, '*' for executables)
 ")
         .arg(
             Arg::new("directory-path-input")
         )
+        .arg(
+            Arg::new("detailed-output-option")
+            .short('l')
+            .action(ArgAction::SetTrue)
+        )
+        .arg(
+            Arg::new("show-hidden-option")
+            .short('a')
+            .action(ArgAction::SetTrue)
+        )
+        .arg(
+            Arg::new("readable-option")
+            .short('r')
+            .action(ArgAction::SetTrue)
+        )
+        .arg(
+            Arg::new("recursive-option")
+            .short('R')
+            .action(ArgAction::SetTrue)
+        )
+        .arg(
+            Arg::new("append-option")
+                .short('F')
+                .action(ArgAction::SetTrue)
+        )
         )
         .subcommand(
             Command::new("find").about("find [path-to-directory] [options] [expressions]: takes a path to a directory and finds a file(s) in it
--name [file-name]: finds a file based on it's name
+-n [file-name]: finds a file based on it's name
 ")
             .arg(
                 Arg::new("directory-path-input")

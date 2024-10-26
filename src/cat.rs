@@ -15,34 +15,34 @@ pub fn match_cat(cat_args: Option<&ArgMatches>) {
                 let mut counter = 0;
                 for line in lines {
                     if let Ok(content) = line {
-                        if cat_args.unwrap().get_flag("line-number-option") {
+                        if args.get_flag("line-number-option") {
                             print!("{}      ", counter);
                             counter += 1;
-                        } else if cat_args.unwrap().get_flag("non-empty-line-number-option") {
+                        } else if args.get_flag("non-empty-line-number-option") {
                             if !content.is_empty() {
                                 print!("{}      ", counter);
                             }
                         }
-                        if cat_args.unwrap().get_flag("squeeze-line-option") {
+                        if args.get_flag("squeeze-line-option") {
                             if !content.is_empty() {
-                                if cat_args.unwrap().get_flag("tab-character-option") {
+                                if args.get_flag("tab-character-option") {
                                     print!("{}", content.replace("\t", "^T"));
                                 } else {
                                     print!("{}", content);
                                 }
-                                if cat_args.unwrap().get_flag("eol-special-option") {
+                                if args.get_flag("eol-special-option") {
                                     println!("$");
                                 } else {
                                     println!("");
                                 }
                             }
                         } else {
-                            if cat_args.unwrap().get_flag("tab-character-option") {
+                            if args.get_flag("tab-character-option") {
                                 print!("{}", content.replace("\t", "^T"));
                             } else {
                                 print!("{}", content);
                             }
-                            if cat_args.unwrap().get_flag("eol-special-option") {
+                            if args.get_flag("eol-special-option") {
                                 println!("$");
                             } else {
                                 println!("");
