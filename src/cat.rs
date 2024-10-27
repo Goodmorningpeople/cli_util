@@ -10,7 +10,7 @@ pub fn match_cat(cat_args: Option<&ArgMatches>) {
         let file_path = args.get_one::<String>("file-path-input").unwrap();
 
         // initialize option variables
-        let line_number_option = args.get_flag("number-line-option");
+        let line_number_option = args.get_flag("line-number-option");
         let non_empty_line_number_option = args.get_flag("non-empty-line-number-option");
         let eol_special_option = args.get_flag("eol-special-option");
         let squeeze_line_option = args.get_flag("squeeze-line-option");
@@ -35,9 +35,9 @@ pub fn match_cat(cat_args: Option<&ArgMatches>) {
                             }
                             print!("{}", line);
                             if eol_special_option {
-                                println!("$")
+                                println!("$");
                             } else {
-                                println!("$")
+                                println!("");
                             }
                             counter += 1;
                         }
