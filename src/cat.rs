@@ -22,20 +22,26 @@ pub fn match_cat(cat_args: Option<&ArgMatches>) {
                 while let Some(entry) = lines.next() {
                     match entry {
                         Ok(mut line) => {
+                            // if squeeze line option is used
                             if squeeze_line_option && !line.is_empty() {
                                 continue;
                             }
+                            // if line number option is used
                             if line_number_option {
                                 print!("{}", counter);
+                            // if non-empty line number option is used
                             } else if non_empty_line_number_option && !line.is_empty() {
                                 print!("{}", counter);
                             }
+                            // if tab character option is used
                             if tab_character_option {
                                 line = line.replace("\t", "^T");
                             }
                             print!("{}", line);
+                            // if eol special option is used
                             if eol_special_option {
                                 println!("$");
+                            // if eol special option is not used
                             } else {
                                 println!("");
                             }
