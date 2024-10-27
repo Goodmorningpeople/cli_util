@@ -1,21 +1,26 @@
 use clap::ArgMatches;
 
 pub fn match_echo(echo_args: Option<&ArgMatches>) {
-    match echo_args {
-        Some(args) => {
-            if let Some(s) = args.get_one::<String>("string-input") {
-                if args.get_flag("enable-special-option") {
-                    if args.get_flag("newline-option") {
-                        print!("{}", s);
-                    }
-                    println!("{}", s);
-                } else if echo_args.unwrap().get_flag("newline-option") {
-                    print!("r{}", s);
-                } else {
-                    println!(r"{}", s);
-                }
-            }
+    if let Some(args) = echo_args {
+        // initialize required variables
+        let string_input = args.get_one::<String>("string-input").unwrap();
+
+        // initialize option variables
+        let newline_option = args.get_flag("newline-option");
+        let enable_special_option = args.get_flag("enable-special-option");
+
+        // check if both options used
+        if newline_option && enable_special_option {
+            print!("{}", string_input);
+        // check if newline-option used
+        } else if newline_option {
+            print!(r"{}", string_input);
+        // check if enable-special-option used
+        } else if enable_special_option {
+            println!("{}", string_input);
+        // if no options used
+        } else {
+            println!(r"{}", string_input);
         }
-        None => {}
     }
 }

@@ -4,10 +4,12 @@ use file_owner::PathExt;
 
 pub fn match_find(find_args: Option<&ArgMatches>) {
     if let Some(args) = find_args {
+        // initialize required variables  
         let dir_path = args.get_one::<String>("directory-path-input").unwrap();
         let mut paths = fs::read_dir(&dir_path).expect("Invalid directory path!");
         let mut counter = 0;
 
+        // initialize option variables  
         let name_option = args.get_one::<String>("name-option");
         let type_option = args.get_one::<String>("type-option");
         let owner_option = args.get_one::<String>("owner-option");
