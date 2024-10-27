@@ -4,55 +4,49 @@ use std::{
     io::{self, BufRead},
     path::Path,
 };
-
 pub fn match_cat(cat_args: Option<&ArgMatches>) {
-    match cat_args {
-        Some(args) => {
-            let file_path = args
-                .get_one::<String>("file-path-input")
-                .expect("Invalid file path!");
-            if let Ok(lines) = read_lines(file_path) {
+    if let Some(args) = cat_args {
+        // initialize required variables
+        let file_path = args.get_one::<String>("file-path-input").unwrap();
+
+        // initialize option variables
+        let line_number_option = args.get_flag("number-line-option");
+        let non_empty_line_number_option = args.get_flag("non-empty-line-number-option");
+        let eol_special_option = args.get_flag("eol-special-option");
+        let squeeze_line_option = args.get_flag("squeeze-line-option");
+        let tab_character_option = args.get_flag("tab-character-option");
+
+        match read_lines(file_path) {
+            Ok(mut lines) => {
                 let mut counter = 0;
-                for line in lines {
-                    if let Ok(content) = line {
-                        if args.get_flag("line-number-option") {
-                            print!("{}      ", counter);
+                while let Some(entry) = lines.next() {
+                    match entry {
+                        Ok(mut line) => {
+                            if squeeze_line_option && !line.is_empty() {
+                                continue;
+                            }
+                            if line_number_option {
+                                print!("{}", counter);
+                            } else if non_empty_line_number_option && !line.is_empty() {
+                                print!("{}", counter);
+                            }
+                            if tab_character_option {
+                                line = line.replace("\t", "^T");
+                            }
+                            print!("{}", line);
+                            if eol_special_option {
+                                println!("$")
+                            } else {
+                                println!("$")
+                            }
                             counter += 1;
-                        } else if args.get_flag("non-empty-line-number-option") {
-                            if !content.is_empty() {
-                                print!("{}      ", counter);
-                            }
                         }
-                        if args.get_flag("squeeze-line-option") {
-                            if !content.is_empty() {
-                                if args.get_flag("tab-character-option") {
-                                    print!("{}", content.replace("\t", "^T"));
-                                } else {
-                                    print!("{}", content);
-                                }
-                                if args.get_flag("eol-special-option") {
-                                    println!("$");
-                                } else {
-                                    println!("");
-                                }
-                            }
-                        } else {
-                            if args.get_flag("tab-character-option") {
-                                print!("{}", content.replace("\t", "^T"));
-                            } else {
-                                print!("{}", content);
-                            }
-                            if args.get_flag("eol-special-option") {
-                                println!("$");
-                            } else {
-                                println!("");
-                            }
-                        }
+                        Err(e) => eprintln!("Error reading line entry: {:?}", e),
                     }
                 }
             }
+            Err(e) => eprintln!("Failed to read file content of {}: {:?}", file_path, e),
         }
-        None => {}
     }
 }
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>

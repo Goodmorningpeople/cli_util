@@ -20,7 +20,7 @@ pub fn match_echo(echo_args: Option<&ArgMatches>) {
             println!("{}", string_input);
         // if no options used
         } else {
-            println!(r"{}", string_input);
+            println!(r"{}", string_input)
         }
     }
 }
