@@ -1,4 +1,4 @@
-use clap::{command, Arg, ArgAction, Command};
+use clap::{command, value_parser, Arg, ArgAction, Command};
 use cli_util::{
     cat::match_cat, echo::match_echo, find::match_find, grep::match_grep, ls::match_ls,
     pwd::match_pwd,
@@ -7,8 +7,7 @@ use cli_util::{
 fn main() {
     let match_result = command!()
         .about("Basic CLI utilities written in Rust to be more efficient, faster and easily modifiable.")
-        .subcommand(
-            Command::new("echo").about("echo [options] [string]: takes a argument of type <String> and prints the argument to the screen, place double-quotes around the argument to have spaces
+        .subcommand( Command::new("echo").about("echo [options] [string]: takes a argument of type <String> and prints the argument to the screen, place double-quotes around the argument to have spaces
 -n: Do not output the trailing newline, allows you to print on the same line without moving onto the next
 -e: Enable interpretation of backspace escapes and special characters
 ")
@@ -71,9 +70,9 @@ fn main() {
             Command::new("ls").about("ls [options] [path-to-directory]: takes an optional path to a directory and prints the content of that directory or the current working directory if not specified
 -l: Returns a detailed output with file type, permissions, link count, the owner, the group, file size and modification timestamp
 -a: Output includes all files, even hidden files
--r: Makes file size outputs human-readable
--R: Recursively outputs directories and their contents (including the files in subdirectories)
--F: Appends a character to each file name to indicate its type (e.g., '/' for directories, '*' for executables)
+-v: Makes file size outputs human-readable
+-r: Recursively outputs directories and their contents (including the files in subdirectories)
+-f: Appends a character to each file name to indicate its type (e.g., '/' for directories, '*' for executables)
 ")
         .arg(
             Arg::new("directory-path-input")
@@ -90,23 +89,27 @@ fn main() {
         )
         .arg(
             Arg::new("readable-option")
-            .short('r')
+            .short('v')
             .action(ArgAction::SetTrue)
         )
         .arg(
             Arg::new("recursive-option")
-            .short('R')
+            .short('r')
             .action(ArgAction::SetTrue)
         )
         .arg(
             Arg::new("append-option")
-                .short('F')
+                .short('f')
                 .action(ArgAction::SetTrue)
         )
         )
         .subcommand(
             Command::new("find").about("find [path-to-directory] [options] [expressions]: takes a path to a directory and finds a file(s) in it
--n [file-name]: finds a file based on it's name
+--name [file-name]: Finds a file based on it's name, takes a string type
+--type [type-of-file]: Allows you to specify the type of file you are searching for, takes a string type
+--mtime [number-of-days]: Finds files based on when they were last modified, takes an integer type  
+--owner [owner]: Allows you to find files owned by a specific user, takes a string type
+--group [group]: Allows you to find files of a specific group, takes a string type
 ")
             .arg(
                 Arg::new("directory-path-input")
@@ -114,9 +117,23 @@ fn main() {
             )
             .arg(
                 Arg::new("name-option")
-                    .short('n')
                     .long("name")
-                    .alias("Name")
+            )
+            .arg(
+                Arg::new("type-option")
+                    .long("type")
+            )
+            .arg(
+                Arg::new("mtime-option")
+                    .long("mtime")
+            )
+            .arg(
+                Arg::new("owner-option")
+                    .long("owner")
+            )
+            .arg(
+                Arg::new("group-option")
+                    .long("group")
             )
         )
         .subcommand(
