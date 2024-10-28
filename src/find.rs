@@ -1,15 +1,15 @@
-use std::{fs, time::SystemTime};
 use clap::ArgMatches;
 use file_owner::PathExt;
+use std::{fs, time::SystemTime};
 
 pub fn match_find(find_args: Option<&ArgMatches>) {
     if let Some(args) = find_args {
-        // initialize required variables  
+        // initialize required variables
         let dir_path = args.get_one::<String>("directory-path-input").unwrap();
         let mut paths = fs::read_dir(&dir_path).expect("Invalid directory path!");
         let mut counter = 0;
 
-        // initialize option variables  
+        // initialize option variables
         let name_option = args.get_one::<String>("name-option");
         let type_option = args.get_one::<String>("type-option");
         let owner_option = args.get_one::<String>("owner-option");
@@ -22,7 +22,7 @@ pub fn match_find(find_args: Option<&ArgMatches>) {
             match entry {
                 Ok(path) => {
                     let tpath = path.path();
-                    let metadata = match tpath.metadata() {
+                    let meta = match tpath.metadata() {
                         Ok(meta) => meta,
                         Err(e) => {
                             eprintln!("Error getting metadata for {:?}: {:?}", tpath, e);
@@ -32,8 +32,9 @@ pub fn match_find(find_args: Option<&ArgMatches>) {
 
                     // Check type
                     if let Some(type_option) = type_option {
-                        if (type_option == "d" && !metadata.is_dir()) ||
-                           (type_option == "f" && metadata.is_dir()) {
+                        if (type_option == "d" && !meta.is_dir())
+                            || (type_option == "f" && meta.is_dir())
+                        {
                             continue;
                         }
                     }
@@ -54,7 +55,7 @@ pub fn match_find(find_args: Option<&ArgMatches>) {
 
                     // Check modification time
                     if let Some(mtime_days) = mtime_days {
-                        let mod_time = metadata.modified().unwrap();
+                        let mod_time = meta.modified().unwrap();
                         let current_time = SystemTime::now();
                         let days_passed = match current_time.duration_since(mod_time) {
                             Ok(duration) => duration.as_secs() / (60 * 60 * 24),
@@ -64,8 +65,9 @@ pub fn match_find(find_args: Option<&ArgMatches>) {
                             }
                         };
 
-                        if (mtime_days < 0 && mtime_days > days_passed as i32) ||
-                           (mtime_days > 0 && mtime_days < days_passed as i32) {
+                        if (mtime_days < 0 && mtime_days > days_passed as i32)
+                            || (mtime_days > 0 && mtime_days < days_passed as i32)
+                        {
                             continue;
                         }
                     }

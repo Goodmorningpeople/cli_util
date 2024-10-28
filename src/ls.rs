@@ -7,120 +7,247 @@ use std::os::unix::fs::{MetadataExt, PermissionsExt};
 
 pub fn match_ls(ls_args: Option<&ArgMatches>) {
     if let Some(args) = ls_args {
-        let dir_path = args
+        // initialize option variables
+        let detailed_output_option = args.get_flag("detailed-output-option");
+        let show_hidden_option = args.get_flag("show-hidden-option");
+        let readable_option = args.get_flag("readable-option");
+        let recursive_option = args.get_flag("recursive-option");
+        let append_option = args.get_flag("append-option");
+
+        // check if directory path has been specified, default to current dir if not
+        let directory_path_input = args
             .get_one::<String>("directory-path-input")
             .map_or("./", |s| s.as_str());
 
-        let paths = fs::read_dir(dir_path).expect("Directory path is invalid!");
+        match fs::read_dir(directory_path_input) {
+            Ok(mut paths) => {
+                while let Some(entry) = paths.next() {
+                    match entry {
+                        Ok(dir_entry) => {
+                            let path = dir_entry.path();
+                            let name = path.file_name().unwrap();
+                            // if file is hidden file and show hidden option is not used
+                            if !show_hidden_option
+                                && name.to_str().map_or(false, |n| n.starts_with('.'))
+                            {
+                                continue;
+                            }
+                            // if detailed output option is used
+                            if detailed_output_option {
+                                // error handing for getting metadata
+                                match path.metadata() {
+                                    Ok(meta) => {
+                                        // initialize metadata variables
+                                        let mode = meta.permissions().mode();
+                                        let permission_string = format_permissions(mode);
+                                        let file_type = if meta.is_dir() {
+                                            "d"
+                                        } else if meta.is_symlink() {
+                                            "l"
+                                        } else {
+                                            "-"
+                                        };
+                                        let file_size = meta.len();
+                                        // error handling for getting modification date
+                                        match meta.modified() {
+                                            Ok(mod_system_time) => {
+                                                let mod_datetime: DateTime<Local> =
+                                                    mod_system_time.into();
+                                                let owner = path.owner().unwrap();
+                                                let group = path.group().unwrap();
+                                                let link_number = meta.nlink();
+                                                // final output
+                                                // if readable option is used
+                                                if readable_option {
+                                                    print!(
+                                                        "{}{} {} {} {} {} {} ",
+                                                        file_type,
+                                                        permission_string,
+                                                        link_number,
+                                                        owner,
+                                                        group,
+                                                        format_size(file_size, DECIMAL),
+                                                        mod_datetime.format("%d/%m/%Y %T")
+                                                    );
+                                                // if readable option is not used
+                                                } else {
+                                                    print!(
+                                                        "{}{} {} {} {} {} {} ",
+                                                        file_type,
+                                                        permission_string,
+                                                        link_number,
+                                                        owner,
+                                                        group,
+                                                        file_size,
+                                                        mod_datetime.format("%d/%m/%Y %T")
+                                                    );
+                                                }
+                                            }
+                                            Err(e) => eprintln!(
+                                                "Failed to get modification date of {}: {:?}",
+                                                path.display().to_string(),
+                                                e
+                                            ),
+                                        }
+                                    }
+                                    Err(e) => eprintln!(
+                                        "Failed to get metadata of {}: {:?}",
+                                        path.display().to_string(),
+                                        e
+                                    ),
+                                }
+                            }
+                            // if  append option is used
+                            if append_option {
+                                let meta = path.metadata().unwrap();
+                                let mode = meta.permissions().mode();
+                                if meta.is_dir() {
+                                    print!("/");
+                                } else if meta.is_symlink() {
+                                    print!("@");
+                                } else if mode & 0o100 != 0
+                                    || mode & 0o010 != 0
+                                    || mode & 0o001 != 0
+                                {
+                                    print!("*");
+                                }
+                            }
 
-        for entry in paths {
-            let entry = entry.expect("Failed to read entry");
-            let path = entry.path();
-            if let Some(name) = path.file_name() {
-                // Skip hidden files if "show-hidden-option" is not enabled
-                if !args.get_flag("show-hidden-option")
-                    && name.to_str().map_or(false, |n| n.starts_with('.'))
-                {
-                    continue;
-                }
-
-                if args.get_flag("detailed-output-option") {
-                    let metadata = path.metadata().unwrap();
-                    let permissions = metadata.permissions();
-                    let mode = permissions.mode();
-                    let permission_string = format_permissions(mode);
-                    let file_type = if metadata.is_dir() {
-                        "d"
-                    } else if metadata.is_symlink() {
-                        "l"
-                    } else {
-                        "-"
-                    };
-                    let file_size = metadata.len();
-                    let mod_system_time = metadata.modified().unwrap();
-                    let mod_datetime: DateTime<Local> = mod_system_time.into();
-                    let owner = path.owner().unwrap();
-                    let group = path.group().unwrap();
-                    let link_number = metadata.nlink();
-
-                    if args.get_flag("readable-option") {
-                        print!(
-                            "{}{} {} {} {} {} {} ",
-                            file_type,
-                            permission_string,
-                            link_number,
-                            owner,
-                            group,
-                            format_size(file_size, DECIMAL),
-                            mod_datetime.format("%d/%m/%Y %T")
-                        );
-                    } else {
-                        print!(
-                            "{}{} {} {} {} {} {} ",
-                            file_type,
-                            permission_string,
-                            link_number,
-                            owner,
-                            group,
-                            file_size,
-                            mod_datetime.format("%d/%m/%Y %T")
-                        );
+                            // if recursive option is used and path is directory
+                            if recursive_option && path.is_dir() {
+                                println!("");
+                                println!(
+                                    "{}:",
+                                    path.strip_prefix(directory_path_input)
+                                        .unwrap_or(&path)
+                                        .display()
+                                );
+                                // call recursive function
+                                recursive_ls(name.to_str().as_ref().unwrap(), args);
+                            // if recursive option is not used
+                            } else {
+                                println!(
+                                    "{}",
+                                    path.strip_prefix(directory_path_input)
+                                        .unwrap_or(&path)
+                                        .display()
+                                );
+                            }
+                        }
+                        Err(e) => eprintln!("Failed to read file entry: {:?}", e),
                     }
-                }
-                if args.get_flag("append-option") {
-                    let metadata = path.metadata().unwrap();
-                    let mode = metadata.permissions().mode();
-                    if metadata.is_dir() {
-                        print!("/");
-                    } else if metadata.is_symlink() {
-                        print!("@");
-                    } else if mode & 0o100 != 0 || mode & 0o010 != 0 || mode & 0o001 != 0 {
-                        print!("*");
-                    }
-                }
-                if path.is_dir() && args.get_flag("recursive-option") {
-                    println!("");
-                    println!(
-                        "{}:",
-                        path.strip_prefix(dir_path).unwrap_or(&path).display()
-                    );
-                    recursive_ls(&path, args);
-                } else {
-                    println!("{}", path.strip_prefix(dir_path).unwrap_or(&path).display());
                 }
             }
+            Err(e) => eprintln!("Failed to read directory: {:?}", e),
         }
     }
 }
+fn recursive_ls(directory_path_input: &str, args: &ArgMatches) {
+    // initialize option variables
+    let detailed_output_option = args.get_flag("detailed-output-option");
+    let show_hidden_option = args.get_flag("show-hidden-option");
+    let readable_option = args.get_flag("readable-option");
+    let recursive_option = args.get_flag("recursive-option");
+    let append_option = args.get_flag("append-option");
 
-fn recursive_ls(dir_path: &std::path::Path, args: &ArgMatches) {
-    let paths = fs::read_dir(dir_path).expect("Directory path is invalid!");
-
-    for entry in paths {
-        let entry = entry.expect("Failed to read entry");
-        let path = entry.path();
-
-        if let Some(name) = path.file_name() {
-            // Skip hidden files if "show-hidden-option" is not enabled
-            if !args.get_flag("show-hidden-option")
-                && name.to_str().map_or(false, |n| n.starts_with('.'))
-            {
-                continue;
-            }
-            // Recurse into directories if "recursive-option" is enabled
-            if path.is_dir() {
-                println!("");
-                println!(
-                    "{}:",
-                    path.strip_prefix(dir_path).unwrap_or(&path).display()
-                );
-                recursive_ls(&path, args);
-            } else {
-                println!("{}", path.strip_prefix(dir_path).unwrap_or(&path).display());
+    match fs::read_dir(directory_path_input) {
+        Ok(mut paths) => {
+            while let Some(entry) = paths.next() {
+                match entry {
+                    Ok(dir_entry) => {
+                        let path = dir_entry.path();
+                        let name = path.file_name().unwrap();
+                        // if file is hidden file and show hidden option is not used
+                        if !show_hidden_option
+                            && name.to_str().map_or(false, |n| n.starts_with('.'))
+                        {
+                            continue;
+                        }
+                        // if detailed output option is used
+                        if detailed_output_option {
+                            // error handing for getting metadata
+                            match path.metadata() {
+                                Ok(meta) => {
+                                    // initialize metadata variables
+                                    let mode = meta.permissions().mode();
+                                    let permission_string = format_permissions(mode);
+                                    let file_type = if meta.is_dir() {
+                                        "d"
+                                    } else if meta.is_symlink() {
+                                        "l"
+                                    } else {
+                                        "-"
+                                    };
+                                    let file_size = meta.len();
+                                    // error handling for getting modification date
+                                    match meta.modified() {
+                                        Ok(mod_system_time) => {
+                                            let mod_datetime: DateTime<Local> =
+                                                mod_system_time.into();
+                                            let owner = path.owner().unwrap();
+                                            let group = path.group().unwrap();
+                                            let link_number = meta.nlink();
+                                            // final output
+                                            // if readable option is used
+                                            if readable_option {
+                                                print!(
+                                                    "{}{} {} {} {} {} {} ",
+                                                    file_type,
+                                                    permission_string,
+                                                    link_number,
+                                                    owner,
+                                                    group,
+                                                    format_size(file_size, DECIMAL),
+                                                    mod_datetime.format("%d/%m/%Y %T")
+                                                );
+                                            // if readable option is not used
+                                            } else {
+                                                print!(
+                                                    "{}{} {} {} {} {} {} ",
+                                                    file_type,
+                                                    permission_string,
+                                                    link_number,
+                                                    owner,
+                                                    group,
+                                                    file_size,
+                                                    mod_datetime.format("%d/%m/%Y %T")
+                                                );
+                                            }
+                                        }
+                                        Err(e) => eprintln!(
+                                            "Failed to get modification date of {}: {:?}",
+                                            path.display().to_string(),
+                                            e
+                                        ),
+                                    }
+                                }
+                                Err(e) => eprintln!(
+                                    "Failed to get metadata of {}: {:?}",
+                                    path.display().to_string(),
+                                    e
+                                ),
+                            }
+                        }
+                        // if recursive option is used and path is directory
+                        if recursive_option && path.is_dir() {
+                            println!("");
+                            println!(
+                                "{}:",
+                                path.strip_prefix(directory_path_input)
+                                    .unwrap_or(&path)
+                                    .display()
+                            );
+                            recursive_ls(name.to_str().as_ref().unwrap(), args);
+                        }
+                    }
+                    Err(e) => eprintln!("Failed to read file entry: {:?}", e),
+                }
             }
         }
+        Err(e) => eprintln!("Failed to read directory: {:?}", e),
     }
 }
+
 fn format_permissions(mode: u32) -> String {
     let mut permissions = String::new();
 
