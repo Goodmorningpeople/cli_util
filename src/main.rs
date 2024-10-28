@@ -1,4 +1,4 @@
-use clap::{command, value_parser, Arg, ArgAction, Command};
+use clap::{command, Arg, ArgAction, Command};
 use cli_util::{
     cat::match_cat, echo::match_echo, find::match_find, grep::match_grep, ls::match_ls,
     pwd::match_pwd,
@@ -17,13 +17,11 @@ fn main() {
                 .arg(
                     Arg::new("newline-option")
                     .short('n')
-                    .long("newline")
                     .action(ArgAction::SetTrue)
                 )
                 .arg(
                     Arg::new("enable-special-option")
                         .short('e')
-                        .long("enable-special")
                         .action(ArgAction::SetTrue)
                 )
                        )
@@ -137,15 +135,39 @@ fn main() {
             )
         )
         .subcommand(
-            Command::new("grep").about("grep [options] [pattern] [expression-name]: looks for a pattern in a file and prints if the pattern is in the file or the files in a directory and prints the file(s)
+            Command::new("grep").about("grep [options] [pattern] [file-name]: looks for a pattern in a file and prints if the pattern is in the file or the files in a directory and prints the file(s)
+-n: Prefix each line of output with the line number within it's input file
+-c: Print a count of matching lines for each input file 
+-i: Ignore case-distinctions in both the pattern and the input files
+-v: Show only lines that do not match the pattern
 ")
                 .arg(
                     Arg::new("pattern-input")
                         .required(true)
                 )
                 .arg(
-                    Arg::new("expression-name-input")
+                    Arg::new("file-name-input")
                         .required(true)
+                )
+                .arg(
+                    Arg::new("number-line-option")
+                    .short('n')
+                    .action(ArgAction::SetTrue)
+                )
+                .arg(
+                    Arg::new("count-option")
+                    .short('c')
+                    .action(ArgAction::SetTrue)
+                )
+                .arg(
+                    Arg::new("ignore-case-option")
+                    .short('i')
+                    .action(ArgAction::SetTrue)
+                )
+                .arg(
+                    Arg::new("invert-match-option")
+                    .short('v')
+                    .action(ArgAction::SetTrue)
                 )
         )
         .subcommand(

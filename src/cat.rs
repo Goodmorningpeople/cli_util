@@ -18,7 +18,7 @@ pub fn match_cat(cat_args: Option<&ArgMatches>) {
 
         match read_lines(file_path) {
             Ok(mut lines) => {
-                let mut counter = 0;
+                let mut counter = 1;
                 while let Some(entry) = lines.next() {
                     match entry {
                         Ok(mut line) => {
