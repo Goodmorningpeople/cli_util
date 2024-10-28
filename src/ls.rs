@@ -85,14 +85,14 @@ pub fn match_ls(ls_args: Option<&ArgMatches>) {
                                             }
                                             Err(e) => eprintln!(
                                                 "Failed to get modification date of {}: {:?}",
-                                                path.display().to_string(),
+                                                path.display(),
                                                 e
                                             ),
                                         }
                                     }
                                     Err(e) => eprintln!(
                                         "Failed to get metadata of {}: {:?}",
-                                        path.display().to_string(),
+                                        path.display(),
                                         e
                                     ),
                                 }
@@ -216,14 +216,14 @@ fn recursive_ls(directory_path_input: &str, args: &ArgMatches) {
                                         }
                                         Err(e) => eprintln!(
                                             "Failed to get modification date of {}: {:?}",
-                                            path.display().to_string(),
+                                            path.display(),
                                             e
                                         ),
                                     }
                                 }
                                 Err(e) => eprintln!(
                                     "Failed to get metadata of {}: {:?}",
-                                    path.display().to_string(),
+                                    path.display(),
                                     e
                                 ),
                             }
