@@ -38,4 +38,39 @@ pub fn match_grep(grep_args: Option<&ArgMatches>) {
     //     }
     //     None => {}
     // }
+
+    if let Some(args) = grep_args {
+        // initialize required variables
+        let pattern_input = args.get_one::<String>("pattern-input").unwrap();
+        let express_name = args.get_one::<String>("expression-name-input").unwrap();
+        match fs::read_to_string(express_name) {
+            Ok(s) => {
+                if s.contains(pattern_input) {
+                    println!("File contains pattern");
+                } else {
+                    println!("File does not contain pattern");
+                }
+            }
+            Err(_) => {
+                let mut counter = 0;
+                let paths = fs::read_dir(express_name).expect("Invalid expression!");
+                println!("");
+                for path in paths {
+                    if let Some(s) = path.unwrap().path().file_name() {
+                        let name = String::from(s.to_str().unwrap());
+                        match fs::read_to_string(format!("{}/{}", express_name, name)) {
+                            Ok(s) => {
+                                if s.contains(pattern_input) {
+                                    println!("{}    ", name);
+                                    counter += 1;
+                                }
+                            }
+                            Err(_) => {}
+                        }
+                    }
+                }
+                println!("\n{} file(s) containing pattern", counter)
+            }
+        }
+    }
 }
